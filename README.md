@@ -106,4 +106,4 @@ sort?: string
 Запуск тестов  
 `./vendor/bin/sail artisan test`  
 
-Так же можно использовать postamn коллекцию sovcombank-test.postman_collection.json  
+Так же можно использовать postamn коллекцию sovcombank-test.postman_collection.json в корне проекта
