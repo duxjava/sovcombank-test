@@ -126,4 +126,16 @@ class CategoryTest extends TestCase
                 ->where('data.active', $categories[0]->active)
         );
     }
+
+    /**
+     * @return void
+     */
+    public function test_category_delete()
+    {
+        $categories = Category::factory()->count(1)->create();
+
+        $response = $this->deleteJson("/api/categories/{$categories[0]->id}");
+
+        $response->assertStatus(204);
+    }
 }
