@@ -87,16 +87,43 @@ class CategoryTest extends TestCase
     {
         $categories = Category::factory()->count(1)->create();
 
-        $response = $this->getJson("/api/categories/{$categories[1]->slug}");
+        $response = $this->getJson("/api/categories/{$categories[0]->slug}");
         $response
             ->assertStatus(200)
             ->assertJson(fn (AssertableJson $json) =>
                 $json->has('data')
-                ->where('data.id', $categories[1]->id)
-                ->where('data.slug', $categories[1]->slug)
-                ->where('data.name', $categories[1]->name)
-                ->where('data.description', $categories[1]->description)
-                ->where('data.active', $categories[1]->active)
+                ->where('data.id', $categories[0]->id)
+                ->where('data.slug', $categories[0]->slug)
+                ->where('data.name', $categories[0]->name)
+                ->where('data.description', $categories[0]->description)
+                ->where('data.active', $categories[0]->active)
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_update()
+    {
+        $categories = Category::factory()->count(1)->create();
+
+        $newSlug = fake()->slug();
+        $newName = fake()->text();
+
+        $response = $this->putJson("/api/categories/{$categories[0]->id}", [
+            'slug' => $newSlug,
+            'name' => $newName,
+        ]);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                ->where('data.id', $categories[0]->id)
+                ->where('data.slug', $newSlug)
+                ->where('data.name', $newName)
+                ->where('data.description', $categories[0]->description)
+                ->where('data.active', $categories[0]->active)
         );
     }
 }
