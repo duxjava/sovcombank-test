@@ -1,64 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+Тестовое задани:
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Реализовать запросы для работы с категориями
+Формат данных:
+● json
+Тип модели категории:
+{
+id!: string,
+slug!: string, // Уникальное название на англ. в системе
+name!: string, // Название категории. Англ., кириллица
+description?:string, // Описание категории. Англ., кириллица
+createdDate!: Date, // Не управляется клиентом. Создается автом.
+active!: boolean, // Вкл, выкл
+}
+? - необязательное
+! - обязательное
+Реализовать следующие запросы:
+● Создать категорию
+● Изменить категорию. Добавить поддержку частичного обновления
+модели. Например возможность изменить только active без
+необходимости передавать всю модель. И так для любого поля модели.
+● Удалить категорию
+● Получить категорию по id или slug.
+● Получить массив категорий по фильтру. См. фильтрация. Без фильтров
+по умолчанию отдаются первые две категории отсортированные по дате
+создания (поле createdDate). Новые категории идут первыми
+Фильтрация
+Принимаемая модель:
+{
+// Поиск категорий по полю name
+// По вхождение переданного текста без учета регистра
+// Умеет искать названия с ё через переданное е
+// Например категория “Мёд”. Запрос “?name=мед” найдет категорию
+// Мёд
+name?: string,
+// Все условия от поля name, но поиск идет по полю description
+description?: string,
+// Поиск по полю active
+// Поддерживаемые значения в параметрах: 0, false, 1, true.
+// Например active=1 или active=true отдаем только активные категории
+// active=0 или active=false отдаем только неактивные категории
+active?: string,
+// Все условия от поля name и description
+// Поиск осуществляется по полю name и description через “или”
+// Переданные фильтры по name и description должны игнорироваться
+// Например ?name=тапочки&description=текст&search=мед
+// При таком запросе фильтры name и description игнорируются
+search?:string,
+// Кол-во записей на страницу. Допустимы только цифры от 1-9
+// Например pageSize=1. В ответе увидим только одну запись,
+// т.е одну категория.
+// При условии что есть записи в бд с переданными фильтрами
+// По умолчанию 2
+pageSize?: number,
+// Номер страницы. Допустимы только цифры
+// 0 и 1 являются первой страницей.
+// В ответ приходит кол-во записей с учетом pageSize
+// Например у нас в бд есть 4 записи(категории)
+// Запрос: “?page=1&pageSize=2”.
+// Ответ: первые две записи.
+// Запрос: “?page=2&pageSize=2”.
+// Ответ: следующие две записи.
+page?: number,
+// Сортировка категорий
+// Принимает любое значение в виде названия поля модели категории
+// и необязательного символа направления сортировки
+// в виде - (дефис, тире).
+// Символ означает направление сортировки как DESC
+// Если переданного значения без учета “-” нет в модели категории,
+// то работает сортировка по умолчанию.
+// Например “?sort=active” ASC сортировка по полю active
+// “?sort=-active” DESC сортировка по полю active
+// “?sort=-name” DESC сортировка по полю name
+// “?sort=-mike” игнорируем, так как нет такого поля в модели категории
+// По умолчанию sort=-createdDate
+sort?: string
+}
+? - необязательное
+Фильтры комбинируются с сортировкой и пагинацией (page, pageSize).
+Учитывать в данных фильтра вероятность инъекций и данные с пробелами.
+Если в поле модели фильтрации передали только пробелы, то фильтрация не
+происходит. В таком случае работает запрос по умолчанию.
+Требования к реализации:
+● PHP ( любые пакеты, фреймворки, библиотеки)
+● Бд любая (любые пакеты, фреймворки, библиотеки)
+Предлагаем разместить код на github или gitlab.
+Реализация c docker будет плюсом.
 
-## About Laravel
+Разворачивание проекта:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Проект разворачивается с помощью docker
+Скопировать .env.example в .env
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Установка зависимостей
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    laravelsail/php81-composer:latest \
+    composer install --ignore-platform-reqs
+    
+Запуск проекта
+./vendor/bin/sail up
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Накатить миграции
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan migrate --env=testing
 
-## Learning Laravel
+Заполнить базу
+./vendor/bin/sail artisan db:seed
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Запуск тестов
+./vendor/bin/sail artisan test
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Так же можно использовать postamn коллекцию sovcombank-test.postman_collection.json
