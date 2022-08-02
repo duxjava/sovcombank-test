@@ -138,4 +138,194 @@ class CategoryTest extends TestCase
 
         $response->assertStatus(204);
     }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_name()
+    {
+        $categories = Category::factory()->state([
+            'name' => 'ёёё',
+        ])->count(1)->create();
+        $response = $this->getJson("/api/categories?name=ЕЕЕ");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_description()
+    {
+        $categories = Category::factory()->state([
+            'description' => 'ёёё',
+        ])->count(1)->create();
+        $response = $this->getJson("/api/categories?description=ЕЕЕ");
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_active_true()
+    {
+        $categories = Category::factory()->state([
+            'active' => true,
+        ])->count(1)->create();
+        
+        $response = $this->getJson("/api/categories?active=1");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+
+        $response = $this->getJson("/api/categories?active=true");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_active_false()
+    {
+        $categories = Category::factory()->state([
+            'active' => false,
+        ])->count(1)->create();
+        
+        $response = $this->getJson("/api/categories?active=0");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+
+        $response = $this->getJson("/api/categories?active=false");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_search()
+    {
+        $categories = Category::factory()->count(3)->create();
+        
+        $response = $this->getJson("/api/categories?name=asd&description=asd&search={$categories[1]->name}");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[1]->id)
+                            ->where('slug', $categories[1]->slug)
+                            ->where('name', $categories[1]->name)
+                            ->where('description', $categories[1]->description)
+                            ->where('active', $categories[1]->active)
+                    )
+                    ->etc()
+            );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_category_index_filter_sort()
+    {
+        $categories = Category::factory()->count(3)->create();
+        
+        $response = $this->getJson("/api/categories?sort=id");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[0]->id)
+                            ->where('slug', $categories[0]->slug)
+                            ->where('name', $categories[0]->name)
+                            ->where('description', $categories[0]->description)
+                            ->where('active', $categories[0]->active)
+                    )
+                    ->etc()
+            );
+
+        $response = $this->getJson("/api/categories?sort=-id");
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has('data')
+                    ->has('data.0', fn ($json2) =>
+                        $json2->where('id', $categories[2]->id)
+                            ->where('slug', $categories[2]->slug)
+                            ->where('name', $categories[2]->name)
+                            ->where('description', $categories[2]->description)
+                            ->where('active', $categories[2]->active)
+                    )
+                    ->etc()
+            );
+    }
 }
