@@ -91,12 +91,7 @@ sort?: string
 Скопировать .env.example в .env  
 
 Установка зависимостей  
-`docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v $(pwd):/var/www/html \
-    -w /var/www/html \
-    laravelsail/php81-composer:latest \
-    composer install --ignore-platform-reqs`
+`docker run --rm -u "$(id -u):$(id -g)" -v $(pwd):/var/www/html -w /var/www/html laravelsail/php81-composer:latest composer install --ignore-platform-reqs`
     
 Запуск проекта  
 `./vendor/bin/sail up`  
